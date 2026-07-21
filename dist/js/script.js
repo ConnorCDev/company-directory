@@ -1,3 +1,7 @@
+$(document).ready(function () {
+  loadPersonnel();
+});
+
 $("#searchInp").on("keyup", function () {
   
   // your code
@@ -7,10 +11,11 @@ $("#searchInp").on("keyup", function () {
 $("#refreshBtn").click(function () {
   
   if ($("#personnelBtn").hasClass("active")) {
+    loadPersonnel();
     
     // Refresh personnel table
     
-  } else {
+  } else { 
     
     if ($("#departmentsBtn").hasClass("active")) {
       
@@ -24,11 +29,15 @@ $("#refreshBtn").click(function () {
     
   }
   
+  
 });
+$("#personnelBtn").click(function () {
+    loadPersonnel();
+  });
 
 function loadPersonnel () {
   $.ajax({
-    url: "../php/getAll.php",
+    url: "php/getAll.php",
     type: "GET",
     dataType: "json",
 
@@ -36,21 +45,21 @@ function loadPersonnel () {
       if(result.status.code == "200") {
         $("#personnelTableBody").html("");
 
-        $.each(result.data, function () {
+        $.each(result.data, function (index, employee) {
           $("#personnelTableBody").append(`
             <tr>
-              <td class-"align-middle text-nowrap">
-                ${this.lastName}, ${this.firstName}
+              <td class="align-middle text-nowrap">
+                ${employee.lastName}, ${employee.firstName}
               </td>
               
               <td class="align-middle text-nowrap d-none d-md-table-cell">
-                ${this.department ?? ""}
+                ${employee.department ?? ""}
               </td>
               <td class="align-middle text-nowrap d-none d-md-table-cell">
-                ${this.location ?? ""}
+                ${employee.location ?? ""}
               </td>
               <td class="align-middle text-nowrap d-none d-md-table-cell">
-                ${this.email}
+                ${employee.email}
               </td>
               <td class="text-end text-nowrap">
                 <button
@@ -58,7 +67,7 @@ function loadPersonnel () {
                   class="btn btn-primary btn-sm"
                   data-bs-toggle="modal"
                   data-bs-target="#editPersonnelModal"
-                  data-id="${this.id}"
+                  data-id="${employee.id}">
                   <i class="fa-solid fa-pencil fa-fw"></i>
                 </button>
                 
@@ -67,7 +76,7 @@ function loadPersonnel () {
                   class="btn btn-primary btn-sm"
                   data-bs-toggle="modal"
                   data-bs-target="#deletePersonnelModal"
-                  data-id="${this.id}">
+                  data-id="${employee.id}">
                   <i class="fa-solid fa-trash fa-fw"></i>
                 </button>
                 </td>
@@ -98,11 +107,7 @@ $("#addBtn").click(function () {
   
 });
 
-$("#personnelBtn").click(function () {
-  
-  // Call function to refresh personnel table
-  
-});
+
 
 $("#departmentsBtn").click(function () {
   
@@ -120,7 +125,7 @@ $("#editPersonnelModal").on("show.bs.modal", function (e) {
   
   $.ajax({
     url:
-      "../php/getPersonnelByID.php",
+      "php/getPersonnelByID.php",
     type: "POST",
     dataType: "json",
     data: {
