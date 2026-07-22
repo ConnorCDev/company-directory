@@ -156,6 +156,59 @@ function loadDepartments () {
   );
 }
 
+function loadLocations () {
+  $.ajax({
+    url: "php/getAllDepartments.php",
+    type: "GET",
+    dataType: "json",
+
+    success: function (result) {
+      if(result.status.code === "200") {
+        $("#locationTableBody").html("");
+
+        $.each(result.data, function (index, location) {
+          $("#locationTableBody").append(`
+            <tr>
+              <td class="align-middle text-nowrap">
+                ${location.name}
+              </td>
+
+              <td class="align-middle text-end text-nowrap">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#editLocationModal"
+                  data-id="${location.id}">
+                  <i class="fa-solid fa-pencil fa-fw"></i>
+                </button>
+                
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#deleteLocationModal"
+                  data-id="${location.id}">
+                  <i class="fa-solid fa-trash fa-fw"></i>
+                </button>
+                </td>
+              </tr>
+              `);
+        });
+      } else {
+        console.error(result.status.description);
+      }
+    },
+
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error("loadlocation error:", textStatus, errorThrown);
+    }
+
+  } 
+
+  );
+}
+
 $("#filterBtn").click(function () {
   
   // Open a modal of your own design that allows the user to apply a filter to the personnel table on either department or location
@@ -178,7 +231,7 @@ $("#departmentsBtn").click(function () {
 
 $("#locationsBtn").click(function () {
   
-  // Call function to refresh location table
+  loadLocations();
   
 });
 
