@@ -234,10 +234,68 @@ $("#filterBtn").click(function () {
 
 $("#addBtn").click(function () {
   
-  // Replicate the logic of the refresh button click to open the add modal for the table that is currently on display
+  if ($("#personnelBtn").hasClass("active")) {
+    loadDepartmentSelect("#addPersonnelDepartment");
+    const modalElement = document.getElementById("addPersonnelModal");
+
+    const modal = new bootstrap.Modal(document.getElementById("addPersonnelModal"));
+    modal.show();
+
+  } else if ($("#departmentsBtn").hasClass("active")) {
+
+    const modal = new bootstrap.Modal(document.getElementById("addDepartmentsModal"));
+
+    loadDepartmentSelect("#addPersonnelDepartment");
+    modal.show();
+  } else {
+
+    const modal = new bootstrap.Modal(document.getElementById("addLocationsModal"));
+    modal.show();
+  }
+  
   
 });
 
+function loadDepartmentSelect(selectID, selectedDepartmentID = null) {
+
+  $.ajax({
+    url: "php/getAllDepartments.php",
+    type: "GET",
+    dataType: "json",
+
+    success: function (result) {
+      console.log("Department select result:", result);
+
+      if (result.status.code === "200") {
+        const select = $(selectID);
+
+        select.html(`
+          <option value="" selected disabled>
+            Select department
+          </option>
+        `);
+
+        
+
+          $.each(result.data, function (index, department) {
+          select.append(`
+            <option value="${department.id}">
+              ${department.name}
+            </option>
+          `);
+        });
+      } else {
+        console.error(result.status.description);
+      }
+
+
+    },
+
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error("loadDepartmentsSelect error:", textStatus, errorThrown);
+    }
+  });
+}
 
 
 $("#departmentsBtn").click(function () {
@@ -280,16 +338,7 @@ $("#editPersonnelModal").on("show.bs.modal", function (e) {
         $("#editPersonnelJobTitle").val(result.data.personnel[0].jobTitle);
         $("#editPersonnelEmailAddress").val(result.data.personnel[0].email);
 
-        $("#editPersonnelDepartment").html("");
-
-        $.each(result.data.department, function () {
-          $("#editPersonnelDepartment").append(
-            $("<option>", {
-              value: this.id,
-              text: this.name
-            })
-          );
-        });
+        loadDepartmentSelect("#editPersonnelDepartment", result.data.personnel[0].departmentID);
 
         $("#editPersonnelDepartment").val(result.data.personnel[0].departmentID);
         
@@ -306,6 +355,44 @@ $("#editPersonnelModal").on("show.bs.modal", function (e) {
     }
   });
 });
+
+$("#addPersonnelForm").on("submit", function (e) {
+  e.preventDefault();
+
+  $.ajax({
+    url: "php/insertPersonnel.php",
+    type: "POST",
+    dataType: "json",
+    data: {
+      firstName: $("#addPersonnelFirstName").val(),
+      lastName: $("#addPersonnelLastName").val(),
+      jobTitle: $("#addPersonnelJobTitle").val(),
+      email: $("#addPersonnelEmailAddress").val(),
+      departmentID: $("#addPersonnelDepartment").val(),
+    },
+
+    success: function (result) {
+      if(result.status.code === "200") {
+        const modalElement = document.getElementById("addPersonnelModal");
+        const modal = bootstrap.Modal.getInstance(modalElement);
+
+        modal.hide();
+
+        $("#addPersonnelForm")[0].reset();
+
+        loadPersonnel();
+      } else {
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error("insertPersonnel error:", textStatus, errorThrown);
+      console.error(jqXHR.responseText);
+    }
+
+    
+  })
+})
 
 // Executes when the form button with type="submit" is clicked
 
