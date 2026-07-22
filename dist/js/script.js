@@ -4,7 +4,24 @@ $(document).ready(function () {
 
 $("#searchInp").on("keyup", function () {
   
-  // your code
+  const searchValue = $(this).val().toLowerCase();
+
+  if ($("#personnelBtn").hasClass("active")) {
+    $("#personnelTableBody tr").each(function () {
+      const rowText = $(this).text().toLowerCase();
+      $(this).toggle(rowText.includes(searchValue));
+    });
+  } else if ($("#departmentsBtn").hasClass("active")) {
+    $("#departmentTableBody tr").each(function () {
+      const rowText = $(this).text().toLowerCase();
+      $(this).toggle(rowText.includes(searchValue));
+    });
+  } else {
+    $("#locationTableBody tr").each(function () {
+      const rowText = $(this).text().toLowerCase();
+      $(this).toggle(rowText.includes(searchValue));
+    });
+  }
   
 });
 
@@ -158,7 +175,7 @@ function loadDepartments () {
 
 function loadLocations () {
   $.ajax({
-    url: "php/getAllDepartments.php",
+    url: "php/getAllLocations.php",
     type: "GET",
     dataType: "json",
 
