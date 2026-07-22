@@ -394,6 +394,70 @@ $("#addPersonnelForm").on("submit", function (e) {
   })
 })
 
+$("#deletePersonnelModal").on("show.bs.modal", function (e) {
+  const personnelID = $(e.relatedTarget).attr("data-id");
+
+  $("#deletePersonnelID").val(personnelID);
+
+  $.ajax({
+    url: "php/getPersonnelByID.php",
+    type: "POST",
+    dataType: "json",
+    data: {
+      id: personnelID
+    },
+
+    success: function (result) {
+      if (result.status.code === "200") {
+        const employee = result.data.personnel[0];
+
+        $("#deletePersonnelName").text(`${employee.firstName} ${employee.lastName}`);
+      } else {
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error(
+        "getPersonnelByID error:",
+        textStatus,
+        errorThrown
+      );
+    }
+    
+  });
+});
+
+$("#confirmDeletePersonnelBtn").click(function () {
+  $.ajax({
+    url: "php/deletePersonnelByID.php",
+    type: "POST",
+    dataType: "json",
+    data: {
+      id: $("#deletePersonnelID").val()
+    },
+
+    success: function (result) {
+      if (result.status.code === "200") {
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("deletePersonnelModal"));
+        modal.hide();
+
+        loadPersonnel();
+      } else {
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error(
+        "deletePersonnel error:",
+        textStatus,
+        errorThrown
+      );
+
+      console.error(jqXHR.responseText);
+    }
+  });
+});
+
 // Executes when the form button with type="submit" is clicked
 
 $("#editPersonnelForm").on("submit", function (e) {
