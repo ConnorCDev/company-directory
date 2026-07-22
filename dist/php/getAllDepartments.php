@@ -34,7 +34,7 @@ try {
 
 try {
 
-	$query = $conn->prepare('SELECT `id`, `name` FROM `department`');
+	$query = $conn->prepare('SELECT d.id, d.name, l.name AS location FROM department d LEFT JOIN location l ON d.locationID = l.id ORDER BY d.name');
 
 } catch (mysqli_sql_exception $e) {
 

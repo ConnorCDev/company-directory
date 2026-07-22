@@ -13,17 +13,19 @@ $("#refreshBtn").click(function () {
   if ($("#personnelBtn").hasClass("active")) {
     loadPersonnel();
     
-    // Refresh personnel table
+    
     
   } else { 
     
     if ($("#departmentsBtn").hasClass("active")) {
+      loadDepartments();
       
-      // Refresh department table
+      
       
     } else {
+      loadLocations();
       
-      // Refresh location table
+      
       
     }
     
@@ -42,7 +44,7 @@ function loadPersonnel () {
     dataType: "json",
 
     success: function (result) {
-      if(result.status.code == "200") {
+      if(result.status.code === "200") {
         $("#personnelTableBody").html("");
 
         $.each(result.data, function (index, employee) {
@@ -83,11 +85,70 @@ function loadPersonnel () {
               </tr>
               `);
         });
+      } else {
+        console.error(result.status.description);
       }
     },
 
     error: function (jqXHR, textStatus, errorThrown) {
-      console.error(textStatus, errorThrown);
+      console.error("loadPersonnel error:", textStatus, errorThrown);
+    }
+
+  } 
+
+  );
+}
+
+function loadDepartments () {
+  $.ajax({
+    url: "php/getAllDepartments.php",
+    type: "GET",
+    dataType: "json",
+
+    success: function (result) {
+      if(result.status.code === "200") {
+        $("#departmentTableBody").html("");
+
+        $.each(result.data, function (index, department) {
+          $("#departmentTableBody").append(`
+            <tr>
+              <td class="align-middle text-nowrap">
+                ${department.name}
+              </td>
+              
+              <td class="align-middle text-nowrap d-none d-md-table-cell">
+                ${department.location ?? ""}
+              </td>
+
+              <td class="align-middle text-end text-nowrap">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#editDepartmentModal"
+                  data-id="${department.id}">
+                  <i class="fa-solid fa-pencil fa-fw"></i>
+                </button>
+                
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#deleteDepartmentModal"
+                  data-id="${department.id}">
+                  <i class="fa-solid fa-trash fa-fw"></i>
+                </button>
+                </td>
+              </tr>
+              `);
+        });
+      } else {
+        console.error(result.status.description);
+      }
+    },
+
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error("loaddepartment error:", textStatus, errorThrown);
     }
 
   } 
@@ -111,7 +172,7 @@ $("#addBtn").click(function () {
 
 $("#departmentsBtn").click(function () {
   
-  // Call function to refresh department table
+  loadDepartments();
   
 });
 
