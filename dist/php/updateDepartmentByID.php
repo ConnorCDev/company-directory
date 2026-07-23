@@ -1,9 +1,9 @@
 <?php
 
 // example use from browser
-// http://localhost/companydirectory/libs/php/getDepartmentByID.php?id=1
+// http://localhost/companydirectory/libs/php/insertDepartment.php?name=Test
 
-// remove next two lines for production	
+// remove the next two lines in production
 
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
@@ -34,7 +34,11 @@ try {
 
 try {
 
-    $query = $conn->prepare('SELECT id, name, locationID FROM department WHERE id = ?');
+    $query = $conn->prepare('UPDATE department 
+                                SET name = ?,                                    
+                                    locationID = ?
+                                WHERE id = ?');
+    
 
 } catch (mysqli_sql_exception $e) {
 
@@ -52,24 +56,17 @@ try {
 
 // use $_POST in production
 
-$query->bind_param("i", $_POST['id']);
+$query->bind_param("sii",
+         $_POST['name'],         
+         $_POST['locationID'],
+         $_POST['id']);
 $query->execute();
-
-$result = $query->get_result();
-
-$data = [];
-
-while ($row = mysqli_fetch_assoc($result)) {
-
-    array_push($data, $row);
-
-}
 
 $output['status']['code'] = "200";
 $output['status']['name'] = "ok";
 $output['status']['description'] = "success";
 $output['status']['returnedIn'] = (microtime(true) - $executionStartTime) / 1000 . " ms";
-$output['data'] = $data;
+$output['data'] = [];
 
 echo json_encode($output);
 

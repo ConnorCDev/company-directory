@@ -591,6 +591,90 @@ $("#addDepartmentForm").on("submit", function (e) {
     }
   });
 });
+$("#editDepartmentModal").on("show.bs.modal", function (e) {
+  const departmentID = $(e.relatedTarget).attr("data-id");
+  
+  $.ajax({
+    url:
+      "php/getDepartmentByID.php",
+    type: "POST",
+    dataType: "json",
+    data: {
+      // Retrieve the data-id attribute from the calling button
+      // see https://getbootstrap.com/docs/5.0/components/modal/#varying-modal-content
+      // for the non-jQuery JavaScript alternative
+      id: departmentID
+    },
+    success: function (result) {
+      var resultCode = result.status.code;
+
+      if (resultCode == 200) {
+        const department = result.data[0];
+        
+        
+
+        $("#editDepartmentID").val(department.id);
+        $("#editDepartmentName").val(department.name);
+        
+
+        loadLocationSelect("#editDepartmentLocation", department.locationID);
+
+        
+        
+      } else {
+        $("#editDepartmentModal .modal-title").text(
+          "Error retrieving data"
+        );
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      $("#editDepartmentModal .modal-title").text(
+        "Error retrieving data"
+      );
+      console.error("getDepartmentByID error:", textStatus, errorThrown);
+    }
+  });
+});
+
+$("#editDepartmentForm").on("submit", function (e) {
+  e.preventDefault();
+
+  $.ajax({
+    url: "php/updateDepartmentByID.php",
+    type: "POST",
+    dataType: "json",
+
+    data: {
+      id: $("#editDepartmentID").val(),
+      name: $("#editDepartmentName").val(),
+      locationID: $("#editDepartmentLocation").val(),
+    },
+
+    success: function (result) {
+      console.log("Update department result", result);
+      if (result.status.code === "200") {
+        const modal = bootstrap.Modal.getOrCreateInstance(
+          document.getElementById("editDepartmentModal")
+        );
+
+        modal.hide();
+        loadDepartments();
+      } else {
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error(
+        "updateDepartment error:",
+        textStatus,
+        errorThrown
+      );
+
+      console.error(jqXHR.responseText);
+    }
+  });
+});
 
 // Executes when the form button with type="submit" is clicked
 
