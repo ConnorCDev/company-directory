@@ -752,5 +752,41 @@ $("#confirmDeleteDepartmentBtn").click(function () {
   });
 });
 
+$("#addLocationForm").on("submit", function (e) {
+  e.preventDefault();
+
+  $.ajax({
+    url: "php/insertLocation.php",
+    type: "POST",
+    dataType: "json",
+
+    data: {
+      name: $("#addLocationName").val(),
+
+    },
+
+    success: function (result) {
+      if (result.status.code === "200") {
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("addLocationModal"));
+        modal.hide();
+
+        $("#addLocationForm")[0].reset();
+
+        loadLocations();
+      } else {
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error(
+        "insertLocation error:",
+        textStatus,
+        errorThrown
+      );
+
+      console.error(jqXHR.responseText);
+    }
+  });
+});
 // Executes when the form button with type="submit" is clicked
 
