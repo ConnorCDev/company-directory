@@ -53,7 +53,7 @@ try {
 
 // use $_POST in production
 
-$query->bind_param("i", $_REQUEST['id']);
+$query->bind_param("i", $_POST['id']);
 $query->execute();
 
 $output['status']['code'] = "200";

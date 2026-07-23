@@ -53,7 +53,7 @@ try {
 
 }
 
-$query->bind_param("i", $_REQUEST['id']);
+$query->bind_param("i", $_POST['id']);
 $query->execute();
 
 $result = $query->get_result();

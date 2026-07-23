@@ -676,5 +676,81 @@ $("#editDepartmentForm").on("submit", function (e) {
   });
 });
 
+$("#deleteDepartmentModal").on("show.bs.modal", function (e) {
+  const departmentID = $(e.relatedTarget).attr("data-id");
+
+  $("#deleteDepartmentID").val(departmentID);
+
+  $.ajax({
+    url: "php/checkDepartmentInUse.php",
+    type: "POST",
+    dataType: "json",
+    data: {
+      id: departmentID
+    },
+
+    success: function (result) {
+      if (result.status.code === "200") {
+        const department = result.data[0];
+        const personnelCount = Number(department.personnelCount);
+
+        if (personnelCount > 0) {
+          $("#deleteDepartmentMessage").text(`${department.departmentName} cannot be deleted because it has ${personnelCount} employee(s) assigned.`);
+
+          $("#confirmDeleteDepartmentBtn").prop("disabled", true);
+        } else {
+          $("#deleteDepartmentMessage").text(`Are you sure you want to delete ${department.departmentName}?`);
+
+          $("#confirmDeleteDepartmentBtn").prop("disabled", false);
+        }
+
+        
+      } else {
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error(
+        "getDepartmentByID error:",
+        textStatus,
+        errorThrown
+      );
+    }
+    
+  });
+});
+
+
+$("#confirmDeleteDepartmentBtn").click(function () {
+  $.ajax({
+    url: "php/deleteDepartmentByID.php",
+    type: "POST",
+    dataType: "json",
+    data: {
+      id: $("#deleteDepartmentID").val()
+    },
+
+    success: function (result) {
+      if (result.status.code === "200") {
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("deleteDepartmentModal"));
+        modal.hide();
+
+        loadDepartments();
+      } else {
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error(
+        "deletePersonnel error:",
+        textStatus,
+        errorThrown
+      );
+
+      console.error(jqXHR.responseText);
+    }
+  });
+});
+
 // Executes when the form button with type="submit" is clicked
 
