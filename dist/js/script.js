@@ -742,7 +742,7 @@ $("#confirmDeleteDepartmentBtn").click(function () {
     },
     error: function (jqXHR, textStatus, errorThrown) {
       console.error(
-        "deletePersonnel error:",
+        "deleteDepartments error:",
         textStatus,
         errorThrown
       );
@@ -861,6 +861,87 @@ $("#editLocationForm").on("submit", function (e) {
     error: function (jqXHR, textStatus, errorThrown) {
       console.error(
         "updateLocation error:",
+        textStatus,
+        errorThrown
+      );
+
+      console.error(jqXHR.responseText);
+    }
+  });
+});
+
+$("#deleteLocationModal").on("show.bs.modal", function (e) {
+  const locationID = $(e.relatedTarget).attr("data-id");
+
+  $("#deleteLocationID").val(locationID);
+
+  $("#confirmDeleteLocationBtn").prop("disabled", true);
+
+  $.ajax({
+    url: "php/checkLocationInUse.php",
+    type: "POST",
+    dataType: "json",
+    data: {
+      id: locationID
+    },
+
+    success: function (result) {
+      if (result.status.code === "200") {
+        const location = result.data[0];
+        const departmentCount = Number(location.departmentCount);
+
+        if (departmentCount > 0) {
+          $("#deleteLocationMessage").text(`${location.locationName} cannot be deleted because it has ${departmentCount} employee(s) assigned.`);
+
+          $("#confirmDeleteLocationBtn").prop("disabled", true);
+        } else {
+          $("#deleteLocationMessage").text(`Are you sure you want to delete ${location.locationName}?`);
+
+          $("#confirmDeleteLocationBtn").prop("disabled", false);
+        }
+
+        
+      } else {
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error(
+        "getLocationByID error:",
+        textStatus,
+        errorThrown
+      );
+    }
+    
+  });
+});
+
+$("#confirmDeleteLocationBtn").click(function () {
+  if ($(this).prop("disabled")) {
+    return;
+  }
+
+  $.ajax({
+    url: "php/deleteLocationByID.php",
+    type: "POST",
+    dataType: "json",
+    data: {
+      id: $("#deleteLocationID").val()
+    },
+
+    success: function (result) {
+      if (result.status.code === "200") {
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("deleteLocationModal"));
+        modal.hide();
+
+        loadLocations();
+      } else {
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error(
+        "deleteLocation error:",
         textStatus,
         errorThrown
       );
