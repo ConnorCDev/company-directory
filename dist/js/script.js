@@ -788,5 +788,86 @@ $("#addLocationForm").on("submit", function (e) {
     }
   });
 });
+
+
+$("#editLocationModal").on("show.bs.modal", function (e) {
+  const locationID = $(e.relatedTarget).attr("data-id");
+  
+  $.ajax({
+    url:
+      "php/getLocationByID.php",
+    type: "POST",
+    dataType: "json",
+    data: {
+      // Retrieve the data-id attribute from the calling button
+      // see https://getbootstrap.com/docs/5.0/components/modal/#varying-modal-content
+      // for the non-jQuery JavaScript alternative
+      id: locationID
+    },
+    success: function (result) {
+      var resultCode = result.status.code;
+
+      if (resultCode == 200) {
+        const location = result.data[0];
+        
+        
+
+        $("#editLocationID").val(location.id);
+        $("#editLocationName").val(location.name);           
+
+        
+        
+      } else {
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+     
+      console.error("getLocationByID error:", textStatus, errorThrown);
+    }
+  });
+});
+
+$("#editLocationForm").on("submit", function (e) {
+  e.preventDefault();
+  console.log({
+  id: $("#editLocationID").val(),
+  name: $("#editLocationName").val()
+  });
+
+  $.ajax({
+    url: "php/updateLocationByID.php",
+    type: "POST",
+    dataType: "json",
+
+    data: {
+      id: $("#editLocationID").val(),
+      name: $("#editLocationName").val(),
+    },
+
+    success: function (result) {
+      console.log("Update Location result", result);
+      if (result.status.code === "200") {
+        const modal = bootstrap.Modal.getOrCreateInstance(
+          document.getElementById("editLocationModal")
+        );
+
+        modal.hide();
+        loadLocations();
+      } else {
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error(
+        "updateLocation error:",
+        textStatus,
+        errorThrown
+      );
+
+      console.error(jqXHR.responseText);
+    }
+  });
+});
 // Executes when the form button with type="submit" is clicked
 
