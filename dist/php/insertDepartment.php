@@ -34,7 +34,15 @@ try {
 
 try {
 
-    $query = $conn->prepare('INSERT INTO `department` (`name`) VALUES (?)');
+    $query = $conn->prepare('INSERT INTO department (
+                                        name,
+                                        locationID)
+                                        VALUES
+                                        (
+                                        ?,
+                                        ?
+                                        )'
+    );
 
 } catch (mysqli_sql_exception $e) {
 
@@ -52,7 +60,8 @@ try {
 
 // use $_POST in production
 
-$query->bind_param("s", $_REQUEST['name']);
+$query->bind_param("si", $_POST['name'],
+                        $_POST['locationID']);
 $query->execute();
 
 $output['status']['code'] = "200";

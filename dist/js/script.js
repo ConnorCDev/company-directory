@@ -242,14 +242,19 @@ $("#addBtn").click(function () {
     modal.show();
 
   } else if ($("#departmentsBtn").hasClass("active")) {
+    loadLocationSelect("#addDepartmentLocation");
 
-    const modal = new bootstrap.Modal(document.getElementById("addDepartmentsModal"));
+
+    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("addDepartmentModal"));
+
 
     loadDepartmentSelect("#addPersonnelDepartment");
     modal.show();
   } else {
 
-    const modal = new bootstrap.Modal(document.getElementById("addLocationsModal"));
+    const modal = bootstrap.Modal.getOrCreateInstance(
+      document.getElementById("addLocationModal")
+    )
     modal.show();
   }
   
@@ -496,6 +501,88 @@ $("#confirmDeletePersonnelBtn").click(function () {
     error: function (jqXHR, textStatus, errorThrown) {
       console.error(
         "deletePersonnel error:",
+        textStatus,
+        errorThrown
+      );
+
+      console.error(jqXHR.responseText);
+    }
+  });
+});
+
+function loadLocationSelect(selectID, selectedLocationID = null) {
+  $.ajax({
+    url: "php/getAllLocations.php",
+    type: "GET",
+    dataType: "json",
+
+    success: function (result) {
+      
+
+      if (result.status.code === "200") {
+        const select = $(selectID);
+
+        select.html(`
+          <option value="" selected disabled>
+            Select location
+          </option>
+        `);
+
+        
+
+          $.each(result.data, function (index, location) {
+          select.append(`
+            <option value="${location.id}">
+              ${location.name}
+            </option>
+          `);
+        });
+
+        if (selectedLocationID !== null) {
+          select.val(String(selectedLocationID));
+        }
+      } else {
+        console.error(result.status.description);
+      }
+
+
+    },
+
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error("loadlocationSelect error:", textStatus, errorThrown);
+    }
+  });
+
+}
+
+$("#addDepartmentForm").on("submit", function (e) {
+  e.preventDefault();
+
+  $.ajax({
+    url: "php/insertDepartment.php",
+    type: "POST",
+    dataType: "json",
+
+    data: {
+      name: $("#addDepartmentName").val(),
+      locationID: $("#addDepartmentLocation").val()
+    },
+
+    success: function (result) {
+      if (result.status.code === "200") {
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("addDepartmentModal"));
+        modal.hide();
+
+        $("#addDepartmentForm")[0].reset();
+
+        loadDepartments();
+      } else {
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error(
+        "insertDepartment error:",
         textStatus,
         errorThrown
       );
