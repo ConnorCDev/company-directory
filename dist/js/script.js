@@ -7,6 +7,7 @@ $("#searchInp").on("keyup", function () {
   const searchValue = $(this).val().toLowerCase();
 
   if ($("#personnelBtn").hasClass("active")) {
+    applyPersonnelFilters();
     $("#personnelTableBody tr").each(function () {
       const rowText = $(this).text().toLowerCase();
       $(this).toggle(rowText.includes(searchValue));
@@ -66,7 +67,10 @@ function loadPersonnel () {
 
         $.each(result.data, function (index, employee) {
           $("#personnelTableBody").append(`
-            <tr>
+            <tr
+              data-department-id="${employee.departmentID}"
+              data-location-id="${employee.locationID}">
+
               <td class="align-middle text-nowrap">
                 ${employee.lastName}, ${employee.firstName}
               </td>
@@ -227,10 +231,148 @@ function loadLocations () {
 }
 
 $("#filterBtn").click(function () {
+
+  if (!$("#personnelBtn").hasClass("active")) {
+    return;
+  }
+
+  loadFilterDepartments();
+  loadFilterLocations();
+
+  const filterModal = new bootstrap.Modal(document.getElementById("filterPersonnelModal"));
+
+  filterModal.show();
   
   // Open a modal of your own design that allows the user to apply a filter to the personnel table on either department or location
   
 });
+
+function loadFilterDepartments() {
+
+  const currentValue = $("#filterDepartment").val();
+
+  $.ajax({
+    url: "php/getAllDepartments.php",
+    type: "GET",
+    dataType: "json",
+
+    success: function (result) {
+
+      if (result.status.code === "200") {
+
+        $("#filterDepartment").html(`<option value="">All departments</option>`);
+
+        result.data.forEach(function (department) {
+
+          $("#filterDepartment").append(`<option value="${department.id}">
+            ${department.name}</option>`);
+        });
+
+        $("#filterDepartment").val(currentValue);
+      } else {
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error(
+        "Filter departments error:",
+        textStatus,
+        errorThrown
+      );
+    }
+
+
+  });
+}
+
+function loadFilterLocations() {
+
+  const currentValue = $("#filterLocation").val();
+
+  $.ajax({
+    url: "php/getAllLocations.php",
+    type: "GET",
+    dataType: "json",
+
+    success: function (result) {
+
+      if (result.status.code === "200") {
+
+        $("#filterLocation").html(`<option value="">All locations</option>`);
+
+        result.data.forEach(function (location) {
+
+          $("#filterLocation").append(`<option value="${location.id}">
+            ${location.name}</option>`);
+        });
+
+        $("#filterLocation").val(currentValue);
+      } else {
+        console.error(result.status.description);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error(
+        "Filter locations error:",
+        textStatus,
+        errorThrown
+      );
+    }
+
+
+  });
+}
+
+
+$("#filterPersonnelForm").on("submit", function (e) {
+
+  e.preventDefault();
+  console.log("Applying Filters");
+
+  applyPersonnelFilters();
+
+  bootstrap.Modal.getInstance(document.getElementById("filterPersonnelModal")).hide();
+});
+
+function applyPersonnelFilters() {
+
+  const departmentID = $("#filterDepartment").val();
+  const locationID = $("#filterLocation").val();
+  const searchValue = $("#searchInp").val().trim().toLowerCase();
+
+  $("#personnelTableBody tr").each(function () {
+
+    const row = $(this);
+
+    const rowDepartmentID = String(row.data("department-id"));
+
+    const rowLocationID = String(row.data("location-id"));
+
+    const rowText = row.text().toLowerCase();
+
+    const matchesDepartment = departmentID === "" || rowDepartmentID === departmentID;
+
+    const matchesLocation = locationID === "" || rowLocationID === locationID;
+
+    const matchesSearch = searchValue === "" || rowText.includes(searchValue);
+
+    row.toggle(
+      matchesDepartment && matchesLocation && matchesSearch
+    );
+  });
+}
+
+$("#clearPersonnelFilterBtn").click(function () {
+
+  $("#filterDepartment").val("");
+  $("#filterLocation").val("");
+
+  applyPersonnelFilters();
+
+  bootstrap.Modal.getInstance(document.getElementById("filterPersonnelModal")).hide();
+});
+
+
 
 $("#addBtn").click(function () {
   

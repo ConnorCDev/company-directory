@@ -34,7 +34,7 @@ try {
 
 try {
 
-	$query = $conn->prepare('SELECT p.id, p.firstName, p.lastName, p.jobTitle, p.email, p.departmentID, d.name AS department, l.name AS location FROM personnel p LEFT JOIN department d ON d.id = p.departmentID LEFT JOIN location l ON l.id = d.locationID ORDER BY p.lastName, p.firstName');
+	$query = $conn->prepare('SELECT p.id, p.firstName, p.lastName, p.jobTitle, p.email, p.departmentID, d.name AS department, l.id AS locationID, l.name AS location FROM personnel p LEFT JOIN department d ON d.id = p.departmentID LEFT JOIN location l ON l.id = d.locationID ORDER BY p.lastName, p.firstName');
 
 } catch (mysqli_sql_exception $e) {
 

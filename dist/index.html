@@ -573,6 +573,57 @@
   </div>
   </div>
 
+  <div id="filterPersonnelModal" class="modal fade" tabindex="-1" data-bs-backdrop="false" data-bs-keyboard="false" aria-hidden="true">
+
+  <div class="modal-dialog modal-sm modal-dialog-centered modal-dialog-scrollable">
+
+    <div class="modal-content shadow">
+
+
+      <div class="modal-header bg-primary bg-gradient text-white">
+        <h5 class="modal-title">Filter Personnel</h5>
+
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+
+      </div>
+
+      <div class="modal-body">      
+        <form id="filterPersonnelForm">
+
+          <div class="form-floating mb-3">
+            <select class="form-select" id="filterDepartment">
+              <option value="">All departments</option>
+            </select>
+
+            <label for="filterDepartment">Department</label>
+          </div>
+
+          <div class="form-floating mb-3">
+            <select class="form-select" id="filterLocation">
+              <option value="">All locations</option>
+            </select>
+
+            <label for="filterLocation">Location</label>
+          </div>
+          <div class="modal-footer">
+        <button type="submit" id="filterPersonnelForm" class="btn btn-outline-primary btn-sm myBtn">APPLY</button>
+        <button type="button" id="clearPersonnelFilterBtn" class="btn btn-outline-secondary btn-sm myBtn" >CLEAR</button>
+        <button type="button" class="btn btn-outline-primary btn-sm myBtn" data-bs-dismiss="modal" data-bs-dismiss="modal">CLEAR</button>
+
+      </div>
+
+
+        </form> 
+
+        
+
+        
+
+      
+    </div>
+  </div>
+  </div>
+
 
 
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script>
